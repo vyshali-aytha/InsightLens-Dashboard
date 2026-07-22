@@ -209,10 +209,11 @@ def render_discount_calculator(cfg):
         return
 
     st.markdown("### Pick a product and discount")
+    product_map = dict(zip(products_df["product_id"], products_df["product_name"]))
     product_label = st.selectbox(
         "Product",
         options=products_df["product_id"],
-        format_func=lambda pid: f"{pid} — {products_df.loc[products_df['product_id'] == pid, 'product_name'].values[0]}",
+        format_func=lambda pid: f"{pid} — {product_map.get(pid, 'Unknown')}",
     )
     discount = st.select_slider("Current discount (%)", options=cfg["discount_levels"], value=cfg["discount_levels"][0])
 
