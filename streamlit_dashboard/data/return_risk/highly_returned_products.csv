@@ -1,0 +1,470 @@
+product_key,company_name,category,total_orders,predicted_returns,predicted_return_rate
+79,homechef,home appliances,5,5,1.0
+55,woodcraft,furniture,3,3,1.0
+6,homechef,home appliances,3,3,1.0
+481,brightnest,electronics,3,3,1.0
+499,homechef,home appliances,2,2,1.0
+466,brightnest,electronics,11,11,1.0
+429,stepwell,footwear,3,3,1.0
+421,brightnest,electronics,4,4,1.0
+439,homechef,home appliances,1,1,1.0
+84,stepwell,footwear,1,1,1.0
+91,brightnest,electronics,3,3,1.0
+169,homechef,home appliances,5,5,1.0
+430,woodcraft,furniture,1,1,1.0
+406,brightnest,electronics,3,3,1.0
+361,brightnest,electronics,2,2,1.0
+379,homechef,home appliances,2,2,1.0
+391,brightnest,electronics,3,3,1.0
+310,woodcraft,furniture,3,3,1.0
+364,homechef,home appliances,1,1,1.0
+226,brightnest,electronics,1,1,1.0
+2,noise,electronics,2,2,1.0
+241,brightnest,electronics,2,2,1.0
+256,brightnest,electronics,3,3,1.0
+271,brightnest,electronics,2,2,1.0
+31,brightnest,electronics,1,1,1.0
+106,brightnest,electronics,5,5,1.0
+196,brightnest,electronics,4,4,1.0
+181,brightnest,electronics,13,13,1.0
+166,brightnest,electronics,2,2,1.0
+316,brightnest,electronics,12,11,0.9166666666666666
+211,brightnest,electronics,10,9,0.9
+121,brightnest,electronics,10,9,0.9
+151,brightnest,electronics,9,8,0.8888888888888888
+301,brightnest,electronics,8,7,0.875
+454,homechef,home appliances,13,11,0.8461538461538461
+136,brightnest,electronics,6,5,0.8333333333333334
+496,brightnest,electronics,6,5,0.8333333333333334
+76,brightnest,electronics,5,4,0.8
+39,stepwell,footwear,5,4,0.8
+436,brightnest,electronics,10,8,0.8
+46,brightnest,electronics,20,16,0.8
+69,stepwell,footwear,13,10,0.7692307692307693
+117,automate,automotive,4,3,0.75
+175,woodcraft,furniture,4,3,0.75
+34,homechef,home appliances,4,3,0.75
+355,woodcraft,furniture,4,3,0.75
+274,homechef,home appliances,4,3,0.75
+396,glowleaf,beauty,4,3,0.75
+115,woodcraft,furniture,4,3,0.75
+474,stepwell,footwear,4,3,0.75
+49,homechef,home appliances,4,3,0.75
+214,homechef,home appliances,10,7,0.7
+325,woodcraft,furniture,3,2,0.6666666666666666
+160,woodcraft,furniture,3,2,0.6666666666666666
+99,stepwell,footwear,3,2,0.6666666666666666
+234,stepwell,footwear,9,6,0.6666666666666666
+451,brightnest,electronics,6,4,0.6666666666666666
+9,technova,electronics,14,9,0.6428571428571429
+199,homechef,home appliances,8,5,0.625
+19,homechef,home appliances,5,3,0.6
+54,stepwell,footwear,10,6,0.6
+204,stepwell,footwear,7,4,0.5714285714285714
+444,stepwell,footwear,7,4,0.5714285714285714
+399,stepwell,footwear,7,4,0.5714285714285714
+130,woodcraft,furniture,7,4,0.5714285714285714
+94,homechef,home appliances,9,5,0.5555555555555556
+189,stepwell,footwear,9,5,0.5555555555555556
+380,fitcore,sports,2,1,0.5
+3,samsung,electronics,6,3,0.5
+340,woodcraft,furniture,2,1,0.5
+309,stepwell,footwear,4,2,0.5
+168,urbanweave,apparel,2,1,0.5
+229,homechef,home appliances,6,3,0.5
+459,stepwell,footwear,2,1,0.5
+349,homechef,home appliances,2,1,0.5
+424,homechef,home appliances,8,4,0.5
+16,brightnest,electronics,2,1,0.5
+346,brightnest,electronics,10,5,0.5
+324,stepwell,footwear,4,2,0.5
+64,homechef,home appliances,2,1,0.5
+289,homechef,home appliances,4,2,0.5
+286,brightnest,electronics,2,1,0.5
+469,homechef,home appliances,9,4,0.4444444444444444
+402,automate,automotive,7,3,0.42857142857142855
+51,glowleaf,beauty,12,5,0.4166666666666667
+279,stepwell,footwear,5,2,0.4
+394,homechef,home appliances,5,2,0.4
+385,woodcraft,furniture,5,2,0.4
+338,playbox,toys,5,2,0.4
+267,automate,automotive,5,2,0.4
+133,writeright,stationery,5,2,0.4
+370,woodcraft,furniture,11,4,0.36363636363636365
+103,writeright,stationery,3,1,0.3333333333333333
+360,greenroot,garden,3,1,0.3333333333333333
+409,homechef,home appliances,12,4,0.3333333333333333
+294,stepwell,footwear,6,2,0.3333333333333333
+376,brightnest,electronics,3,1,0.3333333333333333
+304,homechef,home appliances,9,3,0.3333333333333333
+114,stepwell,footwear,3,1,0.3333333333333333
+70,woodcraft,furniture,6,2,0.3333333333333333
+235,woodcraft,furniture,3,1,0.3333333333333333
+205,woodcraft,furniture,3,1,0.3333333333333333
+195,greenroot,garden,3,1,0.3333333333333333
+50,fitcore,sports,3,1,0.3333333333333333
+319,homechef,home appliances,6,2,0.3333333333333333
+259,homechef,home appliances,3,1,0.3333333333333333
+321,glowleaf,beauty,10,3,0.3
+144,stepwell,footwear,7,2,0.2857142857142857
+298,writeright,stationery,7,2,0.2857142857142857
+447,automate,automotive,4,1,0.25
+381,glowleaf,beauty,4,1,0.25
+147,automate,automotive,4,1,0.25
+129,stepwell,footwear,4,1,0.25
+500,fitcore,sports,4,1,0.25
+149,petnest,pet care,4,1,0.25
+471,glowleaf,beauty,4,1,0.25
+183,urbanweave,apparel,5,1,0.2
+295,woodcraft,furniture,5,1,0.2
+210,greenroot,garden,15,3,0.2
+354,stepwell,footwear,5,1,0.2
+312,automate,automotive,5,1,0.2
+128,playbox,toys,10,2,0.2
+100,woodcraft,furniture,5,1,0.2
+148,writeright,stationery,5,1,0.2
+231,glowleaf,beauty,5,1,0.2
+475,woodcraft,furniture,5,1,0.2
+24,stepwell,footwear,6,1,0.16666666666666666
+156,glowleaf,beauty,13,2,0.15384615384615385
+384,stepwell,footwear,7,1,0.14285714285714285
+154,homechef,home appliances,7,1,0.14285714285714285
+110,fitcore,sports,7,1,0.14285714285714285
+145,woodcraft,furniture,7,1,0.14285714285714285
+250,woodcraft,furniture,8,1,0.125
+252,automate,automotive,8,1,0.125
+443,playbox,toys,8,1,0.125
+216,glowleaf,beauty,17,2,0.11764705882352941
+101,mediplus,health,9,1,0.1111111111111111
+334,homechef,home appliances,9,1,0.1111111111111111
+408,urbanweave,apparel,11,1,0.09090909090909091
+96,glowleaf,beauty,11,1,0.09090909090909091
+335,fitcore,sports,12,1,0.08333333333333333
+371,mediplus,health,13,1,0.07692307692307693
+305,fitcore,sports,16,1,0.0625
+341,mediplus,health,22,1,0.045454545454545456
+193,writeright,stationery,13,0,0.0
+192,automate,automotive,5,0,0.0
+161,mediplus,health,14,0,0.0
+159,stepwell,footwear,2,0,0.0
+158,playbox,toys,4,0,0.0
+157,pagepoint,books,12,0,0.0
+155,fitcore,sports,8,0,0.0
+153,urbanweave,apparel,2,0,0.0
+152,farmpure,grocery,13,0,0.0
+150,greenroot,garden,3,0,0.0
+15,greenroot,garden,12,0,0.0
+21,glowleaf,beauty,1,0,0.0
+209,petnest,pet care,7,0,0.0
+208,writeright,stationery,5,0,0.0
+207,automate,automotive,2,0,0.0
+206,mediplus,health,3,0,0.0
+203,playbox,toys,1,0,0.0
+202,pagepoint,books,3,0,0.0
+201,glowleaf,beauty,4,0,0.0
+200,fitcore,sports,6,0,0.0
+20,fitcore,sports,6,0,0.0
+197,farmpure,grocery,11,0,0.0
+228,urbanweave,apparel,7,0,0.0
+227,farmpure,grocery,7,0,0.0
+225,greenroot,garden,2,0,0.0
+224,petnest,pet care,20,0,0.0
+223,writeright,stationery,4,0,0.0
+222,automate,automotive,3,0,0.0
+221,mediplus,health,2,0,0.0
+220,woodcraft,furniture,1,0,0.0
+22,pagepoint,books,9,0,0.0
+219,stepwell,footwear,1,0,0.0
+218,playbox,toys,9,0,0.0
+215,fitcore,sports,1,0,0.0
+213,urbanweave,apparel,3,0,0.0
+212,farmpure,grocery,10,0,0.0
+244,homechef,home appliances,1,0,0.0
+243,urbanweave,apparel,6,0,0.0
+242,farmpure,grocery,7,0,0.0
+240,greenroot,garden,5,0,0.0
+239,petnest,pet care,9,0,0.0
+238,writeright,stationery,1,0,0.0
+237,automate,automotive,6,0,0.0
+233,playbox,toys,1,0,0.0
+232,pagepoint,books,5,0,0.0
+230,fitcore,sports,6,0,0.0
+23,playbox,toys,4,0,0.0
+263,playbox,toys,14,0,0.0
+262,pagepoint,books,3,0,0.0
+26,mediplus,health,5,0,0.0
+258,urbanweave,apparel,4,0,0.0
+255,greenroot,garden,1,0,0.0
+254,petnest,pet care,4,0,0.0
+253,writeright,stationery,6,0,0.0
+251,mediplus,health,4,0,0.0
+25,woodcraft,furniture,2,0,0.0
+248,playbox,toys,4,0,0.0
+247,pagepoint,books,9,0,0.0
+246,glowleaf,beauty,5,0,0.0
+245,fitcore,sports,4,0,0.0
+280,woodcraft,furniture,2,0,0.0
+28,writeright,stationery,2,0,0.0
+278,playbox,toys,6,0,0.0
+277,pagepoint,books,2,0,0.0
+276,glowleaf,beauty,3,0,0.0
+275,fitcore,sports,2,0,0.0
+272,farmpure,grocery,2,0,0.0
+270,greenroot,garden,4,0,0.0
+27,automate,automotive,13,0,0.0
+269,petnest,pet care,1,0,0.0
+268,writeright,stationery,8,0,0.0
+266,mediplus,health,3,0,0.0
+264,stepwell,footwear,1,0,0.0
+293,playbox,toys,11,0,0.0
+292,pagepoint,books,4,0,0.0
+290,fitcore,sports,8,0,0.0
+29,petnest,pet care,4,0,0.0
+288,urbanweave,apparel,4,0,0.0
+287,farmpure,grocery,2,0,0.0
+285,greenroot,garden,3,0,0.0
+284,petnest,pet care,1,0,0.0
+283,writeright,stationery,1,0,0.0
+282,automate,automotive,4,0,0.0
+281,mediplus,health,2,0,0.0
+311,mediplus,health,1,0,0.0
+308,playbox,toys,8,0,0.0
+307,pagepoint,books,1,0,0.0
+306,glowleaf,beauty,2,0,0.0
+303,urbanweave,apparel,2,0,0.0
+302,farmpure,grocery,8,0,0.0
+300,greenroot,garden,2,0,0.0
+30,greenroot,garden,2,0,0.0
+299,petnest,pet care,2,0,0.0
+297,automate,automotive,1,0,0.0
+296,mediplus,health,2,0,0.0
+327,automate,automotive,9,0,0.0
+326,mediplus,health,3,0,0.0
+323,playbox,toys,5,0,0.0
+322,pagepoint,books,3,0,0.0
+320,fitcore,sports,3,0,0.0
+32,farmpure,grocery,6,0,0.0
+318,urbanweave,apparel,4,0,0.0
+317,farmpure,grocery,1,0,0.0
+315,greenroot,garden,14,0,0.0
+314,petnest,pet care,13,0,0.0
+313,writeright,stationery,4,0,0.0
+342,automate,automotive,6,0,0.0
+339,stepwell,footwear,1,0,0.0
+337,pagepoint,books,3,0,0.0
+336,glowleaf,beauty,3,0,0.0
+185,fitcore,sports,8,0,0.0
+333,urbanweave,apparel,5,0,0.0
+332,farmpure,grocery,1,0,0.0
+330,greenroot,garden,2,0,0.0
+33,urbanweave,apparel,1,0,0.0
+329,petnest,pet care,1,0,0.0
+328,writeright,stationery,1,0,0.0
+357,automate,automotive,2,0,0.0
+356,mediplus,health,2,0,0.0
+104,petnest,pet care,3,0,0.0
+105,greenroot,garden,3,0,0.0
+353,playbox,toys,3,0,0.0
+352,pagepoint,books,9,0,0.0
+351,glowleaf,beauty,3,0,0.0
+350,fitcore,sports,1,0,0.0
+35,fitcore,sports,2,0,0.0
+107,farmpure,grocery,5,0,0.0
+348,urbanweave,apparel,1,0,0.0
+347,farmpure,grocery,1,0,0.0
+108,urbanweave,apparel,2,0,0.0
+345,greenroot,garden,3,0,0.0
+344,petnest,pet care,2,0,0.0
+343,writeright,stationery,2,0,0.0
+373,writeright,stationery,1,0,0.0
+372,automate,automotive,2,0,0.0
+11,mediplus,health,2,0,0.0
+111,glowleaf,beauty,2,0,0.0
+37,pagepoint,books,1,0,0.0
+369,stepwell,footwear,17,0,0.0
+368,playbox,toys,6,0,0.0
+367,pagepoint,books,3,0,0.0
+366,glowleaf,beauty,4,0,0.0
+365,fitcore,sports,5,0,0.0
+363,urbanweave,apparel,4,0,0.0
+362,farmpure,grocery,7,0,0.0
+112,pagepoint,books,3,0,0.0
+36,glowleaf,beauty,4,0,0.0
+359,petnest,pet care,10,0,0.0
+358,writeright,stationery,2,0,0.0
+392,farmpure,grocery,8,0,0.0
+390,greenroot,garden,5,0,0.0
+389,petnest,pet care,2,0,0.0
+388,writeright,stationery,9,0,0.0
+387,automate,automotive,1,0,0.0
+386,mediplus,health,1,0,0.0
+119,petnest,pet care,5,0,0.0
+93,urbanweave,apparel,8,0,0.0
+382,pagepoint,books,3,0,0.0
+92,farmpure,grocery,2,0,0.0
+90,greenroot,garden,5,0,0.0
+38,playbox,toys,8,0,0.0
+378,urbanweave,apparel,1,0,0.0
+377,farmpure,grocery,2,0,0.0
+291,glowleaf,beauty,5,0,0.0
+375,greenroot,garden,7,0,0.0
+134,petnest,pet care,4,0,0.0
+89,petnest,pet care,10,0,0.0
+132,automate,automotive,7,0,0.0
+403,writeright,stationery,6,0,0.0
+88,writeright,stationery,5,0,0.0
+401,mediplus,health,3,0,0.0
+400,woodcraft,furniture,1,0,0.0
+40,woodcraft,furniture,6,0,0.0
+4,farmpure,grocery,3,0,0.0
+87,automate,automotive,8,0,0.0
+398,playbox,toys,10,0,0.0
+397,pagepoint,books,7,0,0.0
+86,mediplus,health,12,0,0.0
+395,fitcore,sports,10,0,0.0
+85,woodcraft,furniture,2,0,0.0
+393,urbanweave,apparel,7,0,0.0
+83,playbox,toys,5,0,0.0
+82,pagepoint,books,1,0,0.0
+407,farmpure,grocery,3,0,0.0
+404,petnest,pet care,9,0,0.0
+81,glowleaf,beauty,1,0,0.0
+146,mediplus,health,6,0,0.0
+80,fitcore,sports,2,0,0.0
+113,playbox,toys,5,0,0.0
+142,pagepoint,books,2,0,0.0
+141,glowleaf,beauty,3,0,0.0
+140,fitcore,sports,13,0,0.0
+14,petnest,pet care,1,0,0.0
+139,homechef,home appliances,2,0,0.0
+138,urbanweave,apparel,3,0,0.0
+137,farmpure,grocery,5,0,0.0
+135,greenroot,garden,1,0,0.0
+426,glowleaf,beauty,5,0,0.0
+425,fitcore,sports,4,0,0.0
+178,writeright,stationery,7,0,0.0
+423,urbanweave,apparel,5,0,0.0
+420,greenroot,garden,6,0,0.0
+42,automate,automotive,7,0,0.0
+419,petnest,pet care,5,0,0.0
+418,writeright,stationery,2,0,0.0
+417,automate,automotive,6,0,0.0
+416,mediplus,health,10,0,0.0
+415,woodcraft,furniture,2,0,0.0
+414,stepwell,footwear,2,0,0.0
+412,pagepoint,books,2,0,0.0
+411,glowleaf,beauty,1,0,0.0
+410,fitcore,sports,2,0,0.0
+41,mediplus,health,4,0,0.0
+445,woodcraft,furniture,1,0,0.0
+177,automate,automotive,2,0,0.0
+176,mediplus,health,9,0,0.0
+442,pagepoint,books,4,0,0.0
+441,glowleaf,beauty,4,0,0.0
+440,fitcore,sports,13,0,0.0
+44,petnest,pet care,3,0,0.0
+438,urbanweave,apparel,2,0,0.0
+437,farmpure,grocery,3,0,0.0
+435,greenroot,garden,13,0,0.0
+434,petnest,pet care,6,0,0.0
+433,writeright,stationery,4,0,0.0
+432,automate,automotive,4,0,0.0
+431,mediplus,health,2,0,0.0
+43,writeright,stationery,7,0,0.0
+427,pagepoint,books,3,0,0.0
+463,writeright,stationery,8,0,0.0
+462,automate,automotive,8,0,0.0
+461,mediplus,health,5,0,0.0
+174,stepwell,footwear,1,0,0.0
+458,playbox,toys,2,0,0.0
+457,pagepoint,books,2,0,0.0
+456,glowleaf,beauty,1,0,0.0
+455,fitcore,sports,3,0,0.0
+453,urbanweave,apparel,12,0,0.0
+173,playbox,toys,2,0,0.0
+450,greenroot,garden,6,0,0.0
+45,greenroot,garden,4,0,0.0
+449,petnest,pet care,9,0,0.0
+448,writeright,stationery,2,0,0.0
+172,pagepoint,books,9,0,0.0
+446,mediplus,health,1,0,0.0
+48,urbanweave,apparel,7,0,0.0
+478,writeright,stationery,4,0,0.0
+477,automate,automotive,5,0,0.0
+476,mediplus,health,1,0,0.0
+171,glowleaf,beauty,15,0,0.0
+17,farmpure,grocery,1,0,0.0
+473,playbox,toys,9,0,0.0
+472,pagepoint,books,5,0,0.0
+167,farmpure,grocery,5,0,0.0
+470,fitcore,sports,4,0,0.0
+47,farmpure,grocery,3,0,0.0
+165,greenroot,garden,5,0,0.0
+468,urbanweave,apparel,2,0,0.0
+467,farmpure,grocery,3,0,0.0
+465,greenroot,garden,2,0,0.0
+464,petnest,pet care,2,0,0.0
+498,urbanweave,apparel,5,0,0.0
+497,farmpure,grocery,2,0,0.0
+495,greenroot,garden,6,0,0.0
+494,petnest,pet care,3,0,0.0
+493,writeright,stationery,2,0,0.0
+492,automate,automotive,2,0,0.0
+491,mediplus,health,3,0,0.0
+164,petnest,pet care,12,0,0.0
+489,stepwell,footwear,2,0,0.0
+488,playbox,toys,2,0,0.0
+487,pagepoint,books,4,0,0.0
+486,glowleaf,beauty,11,0,0.0
+485,fitcore,sports,3,0,0.0
+483,urbanweave,apparel,5,0,0.0
+482,farmpure,grocery,4,0,0.0
+480,greenroot,garden,11,0,0.0
+163,writeright,stationery,9,0,0.0
+116,mediplus,health,3,0,0.0
+162,automate,automotive,2,0,0.0
+63,urbanweave,apparel,3,0,0.0
+62,farmpure,grocery,1,0,0.0
+60,greenroot,garden,10,0,0.0
+59,petnest,pet care,4,0,0.0
+58,writeright,stationery,2,0,0.0
+57,automate,automotive,3,0,0.0
+56,mediplus,health,7,0,0.0
+191,mediplus,health,7,0,0.0
+52,pagepoint,books,2,0,0.0
+190,woodcraft,furniture,3,0,0.0
+188,playbox,toys,13,0,0.0
+187,pagepoint,books,5,0,0.0
+5,fitcore,sports,8,0,0.0
+68,playbox,toys,5,0,0.0
+67,pagepoint,books,4,0,0.0
+65,fitcore,sports,1,0,0.0
+131,mediplus,health,8,0,0.0
+186,glowleaf,beauty,1,0,0.0
+13,writeright,stationery,1,0,0.0
+184,homechef,home appliances,4,0,0.0
+182,farmpure,grocery,11,0,0.0
+127,pagepoint,books,2,0,0.0
+126,glowleaf,beauty,5,0,0.0
+125,fitcore,sports,5,0,0.0
+124,homechef,home appliances,3,0,0.0
+123,urbanweave,apparel,5,0,0.0
+122,farmpure,grocery,1,0,0.0
+12,automate,automotive,11,0,0.0
+180,greenroot,garden,4,0,0.0
+18,urbanweave,apparel,1,0,0.0
+98,playbox,toys,2,0,0.0
+97,pagepoint,books,9,0,0.0
+179,petnest,pet care,4,0,0.0
+95,fitcore,sports,9,0,0.0
+8,cocoacraft,grocery,12,0,0.0
+78,urbanweave,apparel,7,0,0.0
+77,farmpure,grocery,6,0,0.0
+75,greenroot,garden,12,0,0.0
+74,petnest,pet care,2,0,0.0
+73,writeright,stationery,9,0,0.0
+72,automate,automotive,2,0,0.0
+71,mediplus,health,4,0,0.0
+194,petnest,pet care,1,0,0.0
+7,urbanweave,apparel,10,0,0.0
+102,automate,automotive,2,0,0.0

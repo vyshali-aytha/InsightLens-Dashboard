@@ -1,0 +1,11 @@
+# InsightLens Dashboard theme.
+# Keep these in sync with theme.py's PALETTE — this file styles Streamlit's
+# own built-in widgets (buttons, sliders, selectbox, links, sidebar), while
+# theme.py drives the custom-rendered bits (cards, status pills, charts).
+
+[theme]
+primaryColor = "#2E6F6B"
+backgroundColor = "#F7F8FA"
+secondaryBackgroundColor = "#FFFFFF"
+textColor = "#1B2430"
+font = "sans serif"

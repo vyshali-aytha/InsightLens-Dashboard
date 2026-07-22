@@ -1,0 +1,15 @@
+{
+  "_comment": "InsightLens Pipeline Configuration — single source of truth for DB credentials and schema. Fill in your real credentials below; this file is a TEMPLATE only (placeholders, not your actual password) — never commit your filled-in version to source control.",
+  "database": {
+    "host": "localhost",
+    "port": 5432,
+    "dbname": "InsightLens",
+    "user": "postgres",
+    "password": "vyshu*123"
+  },
+  "schema": "insightlens",
+  "pipeline": {
+    "run_file_validation_first": true,
+    "skip_prompt_for_password": false
+  }
+}
