@@ -174,5 +174,7 @@ def post_discount_prediction(model_cfg: dict, product_id: str, discount: float) 
         )
         resp.raise_for_status()
         return resp.json()
+    except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+        return None
     except requests.RequestException as exc:
         return {"error": str(exc)}
