@@ -122,6 +122,17 @@ def get_return_dashboard(model_cfg: dict) -> dict | None:
 
 
 @st.cache_data(ttl=60, show_spinner=False)
+def get_return_predictions(model_cfg: dict) -> pd.DataFrame | None:
+    """Transaction-level Return Risk predictions used for client-side analysis.
+
+    The Return Risk service exposes aggregates rather than a full prediction
+    endpoint.  Its existing predictions.csv output is therefore the canonical
+    source for interactive filtering when the dashboard is running locally.
+    """
+    return _csv_fallback(model_cfg["csv_dir"], model_cfg["csv_files"]["predictions"])
+
+
+@st.cache_data(ttl=60, show_spinner=False)
 def get_return_breakdown(model_cfg: dict, breakdown_key: str) -> pd.DataFrame | None:
     """One of: top_returned_products, top_return_cities, return_reasons, high_risk_orders."""
     api_base = model_cfg["api_base"]
