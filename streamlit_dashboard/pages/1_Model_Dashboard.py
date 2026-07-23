@@ -442,6 +442,41 @@ def render_discount_calculator(cfg):
             c2.metric("Recommended discount", f"{result['recommended_discount']:.0f}%")
             c3.metric("Revenue gain", f"{result['revenue_gain']:,.2f}")
             st.info(f"**{result['recommended_action']}** — expected revenue at recommended discount: {result['recommended_expected_revenue']:,.2f} (vs {result['current_expected_revenue']:,.2f} now)")
+            
+            if "discount_curve" in result:
+                curve_df = pd.DataFrame(result["discount_curve"])
+                curve_df["discount"] = curve_df["discount"].astype(int)
+                
+                st.markdown("### Expected Revenue & Quantity by Discount Level")
+                import altair as alt
+                
+                base = alt.Chart(curve_df).encode(
+                    x=alt.X('discount:O', title='Discount (%)')
+                )
+                
+                bar = base.mark_bar(opacity=0.6, color="#B8A1C8").encode(
+                    y=alt.Y('predicted_quantity:Q', title='Predicted Quantity'),
+                    tooltip=['discount', 'predicted_quantity', 'expected_revenue']
+                )
+                
+                line = base.mark_line(color="#2E5C55", point=True).encode(
+                    y=alt.Y('expected_revenue:Q', title='Expected Revenue', axis=alt.Axis(format="$.2f")),
+                    tooltip=['discount', 'predicted_quantity', 'expected_revenue']
+                )
+                
+                current_rule = alt.Chart(pd.DataFrame({'discount': [int(result['current_discount'])]})).mark_rule(
+                    color='gray', strokeDash=[4, 4], size=2
+                ).encode(x='discount:O')
+                
+                recommended_rule = alt.Chart(pd.DataFrame({'discount': [int(result['recommended_discount'])]})).mark_rule(
+                    color='#0b5fa5', strokeDash=[2, 2], size=2
+                ).encode(x='discount:O')
+                
+                chart = alt.layer(bar, line, current_rule, recommended_rule).resolve_scale(y='independent').properties(height=400)
+                st.altair_chart(chart, use_container_width=True)
+                
+                st.caption("Gray dashed line = Current discount. Blue dashed line = Recommended discount.")
+
             with st.expander("Full response"):
                 st.json(result)
 

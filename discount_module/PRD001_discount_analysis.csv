@@ -1,0 +1,10 @@
+product_id,product_name,category,unit_price,discount,quantity,revenue
+PRD001,Smart LED Bulb,Electronics,1299.0,0,7,9093.0
+PRD001,Smart LED Bulb,Electronics,1299.0,5,9,11106.45
+PRD001,Smart LED Bulb,Electronics,1299.0,10,11,12860.1
+PRD001,Smart LED Bulb,Electronics,1299.0,15,13,14353.95
+PRD001,Smart LED Bulb,Electronics,1299.0,20,15,15588.0
+PRD001,Smart LED Bulb,Electronics,1299.0,25,16,15588.0
+PRD001,Smart LED Bulb,Electronics,1299.0,30,15,13639.5
+PRD001,Smart LED Bulb,Electronics,1299.0,35,15,12665.25
+PRD001,Smart LED Bulb,Electronics,1299.0,40,15,11691.0
