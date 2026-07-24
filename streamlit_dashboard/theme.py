@@ -38,4 +38,5 @@ MODEL_TYPE_ACCENTS = {
     "return_dashboard": "#4A5FBA",    # indigo — KPI dashboard
     "discount_calculator": "#B5652E", # ochre — live what-if calculator
     "sales_forecast": "#3A8F6E",      # emerald — time-series forecasting
+    "pipeline_dashboard": "#6B4F8C",  # violet — on-demand DB pipeline (POST /run)
 }

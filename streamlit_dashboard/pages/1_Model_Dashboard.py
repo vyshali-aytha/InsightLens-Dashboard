@@ -9,6 +9,7 @@ from utils.data_loader import (
     get_return_dashboard, get_return_breakdown, get_return_predictions,
     get_discount_products, post_discount_prediction,
     get_sales_forecast_data, get_sales_historical_data,
+    post_pipeline_run, get_pipeline_json, pipeline_graph_url, get_pipeline_csv_bytes,
 )
 
 st.title("Model Dashboard")
@@ -782,6 +783,72 @@ def render_sales_forecast(cfg):
         st.markdown(f'<div class="sf-insight">{insight}</div>', unsafe_allow_html=True)
 
 
+# =============================================================================
+# type: pipeline_dashboard — Flask API shape (project/app.py):
+# POST /run executes the DB-backed pipeline; GET endpoints read the
+# server-side cache. No CSV fallback — the Flask API is the only source.
+# =============================================================================
+def render_pipeline_dashboard(model_key, cfg):
+    st.caption("Runs a database-backed pipeline via the Flask API. Results stay cached until you run it again.")
+    if st.button(f"Run {cfg['label']}", type="primary", key=f"run_{model_key}"):
+        with st.spinner("Running pipeline against the warehouse — this can take a while..."):
+            run_result = post_pipeline_run(cfg)
+        if not run_result or "error" in run_result:
+            st.error(f"Pipeline run failed: {(run_result or {}).get('error', 'unknown error')}")
+        else:
+            st.success("Pipeline run complete.")
+            get_pipeline_json.clear()  # server cache changed — drop our stale GET cache
+            get_pipeline_csv_bytes.clear()
+
+    endpoints = cfg["endpoints"]
+    data_keys = [k for k in endpoints if k not in ("run", "csv_list", "csv_file", "graph_list", "graph_file")]
+    fetched = {k: get_pipeline_json(model_key, cfg, k) for k in data_keys}
+
+    if all(v is None for v in fetched.values()):
+        st.info("No results yet for this run — click **Run** above (POST /.../run) to compute them.")
+        return
+
+    tab_labels = [k.replace("_", " ").title() for k in data_keys] + ["Graphs", "CSV downloads"]
+    tabs = st.tabs(tab_labels)
+
+    for tab, key in zip(tabs, data_keys):
+        with tab:
+            value = fetched[key]
+            if value is None:
+                st.info("No data returned for this endpoint yet.")
+            elif isinstance(value, list):
+                st.dataframe(pd.DataFrame(value), use_container_width=True)
+            elif isinstance(value, dict):
+                # dicts of sub-tables (e.g. statistics -> method_agreement/flag_stability,
+                # classification -> top20_highest_risk/store_risk/...)
+                for sub_key, sub_value in value.items():
+                    if isinstance(sub_value, list):
+                        st.markdown(f"**{sub_key.replace('_', ' ').title()}**")
+                        st.dataframe(pd.DataFrame(sub_value), use_container_width=True)
+                    else:
+                        st.metric(sub_key.replace("_", " ").title(), sub_value)
+
+    with tabs[-2]:
+        available_graphs = get_pipeline_json(model_key, cfg, "graph_list") or []
+        graph_names = cfg.get("graphs", [])
+        shown = False
+        for name in graph_names:
+            if f"{name}.png" in available_graphs:
+                st.image(pipeline_graph_url(cfg, name), caption=name.replace("_", " ").title(), use_container_width=True)
+                shown = True
+        if not shown:
+            st.info("No graphs available yet — run the pipeline first.")
+
+    with tabs[-1]:
+        available_csvs = get_pipeline_json(model_key, cfg, "csv_list") or []
+        if not available_csvs:
+            st.info("No CSVs available yet — run the pipeline first.")
+        for filename in available_csvs:
+            csv_bytes = get_pipeline_csv_bytes(cfg, filename)
+            if csv_bytes:
+                st.download_button(f"Download {filename}", data=csv_bytes, file_name=filename, mime="text/csv", key=f"dl_{model_key}_{filename}")
+
+
 # --- Dispatch on type ---
 model_type = cfg.get("type")
 if model_type == "risk_scoring":
@@ -792,5 +859,7 @@ elif model_type == "discount_calculator":
     render_discount_calculator(cfg)
 elif model_type == "sales_forecast":
     render_sales_forecast(cfg)
+elif model_type == "pipeline_dashboard":
+    render_pipeline_dashboard(model_key, cfg)
 else:
     st.info("This model doesn't have a render type configured yet.")
