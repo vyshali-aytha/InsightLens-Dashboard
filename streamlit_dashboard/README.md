@@ -22,9 +22,10 @@ genuinely different API shape:
 | `risk_scoring` | Payment Failure Risk (Module 7) | `/health`, `/scores`, `/charts/<name>` | `data/payment_failure/` |
 | `return_dashboard` | Return Risk Prediction | `/dashboard`, `/top-returned-products`, `/top-return-cities`, `/return-reasons`, `/high-risk-orders` | `data/return_risk/` |
 | `discount_calculator` | Discount Impact Prediction | `POST /predict_discount` (live what-if, not a batch result) | `data/discount_impact/` (needs `dim_product.csv` for the product picker only) |
+| `sales_forecast` | Sales & Revenue Forecasting | `/health`, `/forecast`, `/historical`, `/forecast/summary` | `data/sales_forecast/` |
 
-All three call the live API first (3s timeout). The first two fall back to
-local CSVs if the API isn't running. The discount calculator is inherently
+All models call the live API first (3s timeout). The first two and the sales forecast
+fall back to local CSVs if the API isn't running. The discount calculator is inherently
 interactive (it prices a product+discount combo on request) so it has no
 CSV fallback for the recommendation itself — only the product picklist
 comes from a CSV.
@@ -33,6 +34,8 @@ CSV files expected in each folder:
 - `data/payment_failure/`: `payment_failure_scores.csv` (from `payment_risk_scores.csv`), `payment_failure_scores_by_method_provider.csv`, `payment_failure_scores_by_month.csv`
 - `data/return_risk/`: `predictions.csv`, `highly_returned_products.csv`, `top_return_cities.csv`, `return_reason_summary.csv` (straight from that model's `outputs/` folder)
 - `data/discount_impact/`: `dim_product.csv`
+- `data/sales_forecast/`: `forecast_results_1.csv` (test-period predictions), `sales_ml_input.csv` (historical training data)
+
 
 ## Adding the next model
 

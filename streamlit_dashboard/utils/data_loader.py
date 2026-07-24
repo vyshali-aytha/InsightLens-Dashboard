@@ -189,3 +189,42 @@ def post_discount_prediction(model_cfg: dict, product_id: str, discount: float) 
         return None
     except requests.RequestException as exc:
         return {"error": str(exc)}
+
+
+# ---------------------------------------------------------------------------
+# type: sales_forecast (Sales & Revenue Forecasting)
+# ---------------------------------------------------------------------------
+
+@st.cache_data(ttl=60, show_spinner=False)
+def get_sales_forecast_data(model_cfg: dict) -> pd.DataFrame | None:
+    """Forecast results — actual vs predicted revenue for the test period.
+
+    Tries the live API first (/forecast), falls back to forecast_results_1.csv.
+    """
+    api_base = model_cfg.get("api_base")
+    endpoint = model_cfg.get("endpoints", {}).get("forecast")
+    if api_base and endpoint:
+        result = _api_get(api_base, endpoint)
+        if result is not None:
+            df = pd.DataFrame(result)
+            if not df.empty:
+                return df
+    return _csv_fallback(model_cfg["csv_dir"], model_cfg["csv_files"]["forecast"])
+
+
+@st.cache_data(ttl=60, show_spinner=False)
+def get_sales_historical_data(model_cfg: dict) -> pd.DataFrame | None:
+    """Full historical ML input — training + test period actuals.
+
+    Tries the live API first (/historical), falls back to sales_ml_input.csv.
+    """
+    api_base = model_cfg.get("api_base")
+    endpoint = model_cfg.get("endpoints", {}).get("historical")
+    if api_base and endpoint:
+        result = _api_get(api_base, endpoint)
+        if result is not None:
+            df = pd.DataFrame(result)
+            if not df.empty:
+                return df
+    return _csv_fallback(model_cfg["csv_dir"], model_cfg["csv_files"]["historical"])
+
