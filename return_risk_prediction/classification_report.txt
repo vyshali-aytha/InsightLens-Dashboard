@@ -1,0 +1,64 @@
+Dataset Population Observations : 12000
+Target Label Properties         : Negative (0): 10320 | Positive (1): 1680
+Calibration Method Strategy     : ISOTONIC
+Optimized Decision Cut-off      : 0.2500 (Maximized F2)
+-------------------------------------------------------------------------------------
+OPTIMIZED ESTIMATOR HYPERPARAMETERS (XGBoost Branch):
+  - subsample           : 0.9
+  - reg_lambda          : 1.0
+  - reg_alpha           : 1.0
+  - n_estimators        : 100
+  - min_child_weight    : 1
+  - max_depth           : 6
+  - learning_rate       : 0.1
+  - gamma               : 0
+  - colsample_bytree    : 0.9
+-------------------------------------------------------------------------------------
+CONSENSUS BASELINE FEATURE RANKINGS (TOP 10):
+   1. Feature: category                     | Consensus Rank: 1.50
+   2. Feature: subcategory                  | Consensus Rank: 1.50
+   3. Feature: segment                      | Consensus Rank: 3.50
+   4. Feature: discount                     | Consensus Rank: 5.00
+   5. Feature: company_name                 | Consensus Rank: 5.00
+   6. Feature: gross_amount                 | Consensus Rank: 5.50
+   7. Feature: quantity                     | Consensus Rank: 6.00
+   8. Feature: unit_price                   | Consensus Rank: 9.00
+   9. Feature: gender                       | Consensus Rank: 11.00
+  10. Feature: quarter                      | Consensus Rank: 11.00
+-------------------------------------------------------------------------------------
+DYNAMIC ENGINEERED FEATURES GENERATED:
+  - is_weekend
+  - is_month_start
+  - is_month_end
+  - is_festival_season
+  - discount_percent
+  - high_discount_flag
+  - customer_purchase_count
+  - customer_return_rate
+  - average_discount_by_customer
+  - product_sales_count
+  - product_return_rate
+  - category_return_rate
+  - average_discount_by_category
+  - store_sales_count
+  - store_return_rate
+  - average_discount_by_store
+-------------------------------------------------------------------------------------
+PRODUCTION PERFORMANCE METRICS ON UNTOUCHED HOLDOUT TEST SET:
+  - Accuracy                    : 0.91167
+  - Precision                   : 0.64554
+  - Recall                      : 0.81845
+  - F1 Score                    : 0.72178
+  - F2 Score                    : 0.77684
+  - ROC AUC                     : 0.92015
+  - PR AUC                      : 0.80379
+  - Brier Score                 : 0.05597
+  - Matthews Correlation        : 0.67682
+  - Balanced Accuracy           : 0.87265
+-------------------------------------------------------------------------------------
+CONFUSION MATRIX (DECISION CUT-OFF: 0.2500):
+  True Positives (Correctly Flagged Returns)      : 275
+  True Negatives (Correctly Flagged Safe)         : 1913
+  False Positives (Safe items flagged as returns) : 151
+  False Negatives (Missed returns)                : 61
+-------------------------------------------------------------------------------------
