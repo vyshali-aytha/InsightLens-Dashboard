@@ -89,15 +89,26 @@ MODELS = {
         "status": "active",
     },
 
-    # --- Add the next model here once its API shape is known. If it's a
-    # new shape entirely, add a new `type` and a matching small loader in
-    # utils/data_loader.py + render block in pages/1_Model_Dashboard.py. ---
-    "model_4_placeholder": {
-        "label": "Model 4 (coming soon)",
+    # type: sales_forecast — time-series revenue forecasting using a
+    # RandomForest trained on sales_ml_input.  Exposes /health, /forecast,
+    # /historical, /forecast/summary.  CSV fallback uses the model's own
+    # forecast_results_1.csv + sales_ml_input.csv.
+    "sales_forecast": {
+        "label": "Sales & Revenue Forecasting",
         "icon": None,
-        "type": None,
-        "api_base": None,
-        "csv_dir": "data/model_4",
-        "status": "coming_soon",
+        "type": "sales_forecast",
+        "api_base": "http://localhost:8011",
+        "csv_dir": "data/sales_forecast",
+        "endpoints": {
+            "health": "/health",
+            "forecast": "/forecast",
+            "historical": "/historical",
+            "summary": "/forecast/summary",
+        },
+        "csv_files": {
+            "forecast": "forecast_results_1.csv",
+            "historical": "sales_ml_input.csv",
+        },
+        "status": "active",
     },
 }

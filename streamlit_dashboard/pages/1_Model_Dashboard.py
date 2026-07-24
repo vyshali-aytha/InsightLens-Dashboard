@@ -1,12 +1,14 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 import plotly.express as px
 from config import MODELS
-from theme import STATUS_COLORS
+from theme import STATUS_COLORS, PALETTE
 from utils.data_loader import (
     get_health, get_scores, get_chart_data,
     get_return_dashboard, get_return_breakdown, get_return_predictions,
     get_discount_products, post_discount_prediction,
+    get_sales_forecast_data, get_sales_historical_data,
 )
 
 st.title("Model Dashboard")
@@ -481,6 +483,305 @@ def render_discount_calculator(cfg):
                 st.json(result)
 
 
+# =============================================================================
+# type: sales_forecast — Sales & Revenue Forecasting dashboard
+# =============================================================================
+
+SALES_FORECAST_CSS = """
+<style>
+.sf-kpi {
+    min-height: 122px; padding: 16px 18px; border: 1px solid var(--accent);
+    border-left: 5px solid var(--accent); border-radius: 14px;
+    background: var(--tint); box-shadow: 0 5px 16px rgba(20, 31, 48, .05);
+    transition: transform .16s ease, box-shadow .16s ease;
+}
+.sf-kpi:hover { transform: translateY(-2px); box-shadow: 0 9px 22px rgba(20, 31, 48, .09); }
+.sf-kpi__label { color: #52606D; font-size: .76rem; font-weight: 700; letter-spacing: .045em; text-transform: uppercase; }
+.sf-kpi__value { color: #1B2430; font-size: 1.6rem; font-weight: 750; line-height: 1.35; overflow-wrap: anywhere; }
+.sf-kpi__sub { color: #6B7280; font-size: .82rem; }
+.sf-insight { padding: 14px 16px; background: #FFFFFF; border: 1px solid #E2E5EA; border-radius: 10px; margin-bottom: 10px; color: #394150; }
+</style>
+"""
+
+SALES_CHART_COLORS = ["#3A8F6E", "#5BB58E", "#2E6F6B", "#8DA9C4", "#B8A1C8", "#E7B98E"]
+
+
+def _sf_kpi(label, value, subtitle, accent, tint):
+    st.markdown(
+        f'<div class="sf-kpi" style="--accent:{accent};--tint:{tint};">'
+        f'<div class="sf-kpi__label">{label}</div>'
+        f'<div class="sf-kpi__value">{value}</div>'
+        f'<div class="sf-kpi__sub">{subtitle}</div></div>',
+        unsafe_allow_html=True,
+    )
+
+
+def _sf_chart_layout(fig, height=380):
+    fig.update_layout(
+        height=height, margin=dict(l=10, r=10, t=48, b=10), paper_bgcolor="white",
+        plot_bgcolor="white", font=dict(color="#1B2430"), legend_title_text="",
+    )
+    fig.update_xaxes(showgrid=True, gridcolor="#EDF0F3", zeroline=False)
+    fig.update_yaxes(showgrid=False, zeroline=False)
+    return fig
+
+
+def _sf_filters(df):
+    """Store/product/date filters for the forecast data."""
+    filtered = df.copy()
+    with st.expander("Filters", expanded=False):
+        st.caption("Refine the forecast output. All dashboard elements update automatically.")
+        row = st.columns(3)
+        with row[0]:
+            stores = sorted(filtered["store_name"].dropna().astype(str).unique())
+            sel_stores = st.multiselect("Store", stores, key="sf_store")
+            if sel_stores:
+                filtered = filtered[filtered["store_name"].astype(str).isin(sel_stores)]
+        with row[1]:
+            products = sorted(filtered["product_name"].dropna().astype(str).unique())
+            sel_products = st.multiselect("Product", products, key="sf_product")
+            if sel_products:
+                filtered = filtered[filtered["product_name"].astype(str).isin(sel_products)]
+        with row[2]:
+            months = sorted(filtered["month"].dropna().unique())
+            month_labels = {1: "Jan", 2: "Feb", 3: "Mar", 4: "Apr", 5: "May", 6: "Jun",
+                            7: "Jul", 8: "Aug", 9: "Sep", 10: "Oct", 11: "Nov", 12: "Dec"}
+            month_options = [int(m) for m in months]
+            sel_months = st.multiselect(
+                "Month", month_options,
+                format_func=lambda m: month_labels.get(m, str(m)),
+                key="sf_month",
+            )
+            if sel_months:
+                filtered = filtered[filtered["month"].isin(sel_months)]
+    return filtered
+
+
+def render_sales_forecast(cfg):
+    forecast = get_sales_forecast_data(cfg)
+    if forecast is None or forecast.empty:
+        st.warning("No forecast data available — check the API is running or place forecast_results_1.csv in the model's data folder.")
+        return
+
+    st.markdown(SALES_FORECAST_CSS, unsafe_allow_html=True)
+
+    # Ensure types
+    forecast["full_date"] = pd.to_datetime(forecast["full_date"])
+    for col in ["Actual Revenue", "Predicted Revenue", "total_orders", "avg_order_value"]:
+        if col in forecast.columns:
+            forecast[col] = pd.to_numeric(forecast[col], errors="coerce")
+    for col in ["store_id", "product_id", "month", "year", "quarter"]:
+        if col in forecast.columns:
+            forecast[col] = pd.to_numeric(forecast[col], errors="coerce")
+
+    # Apply filters
+    filtered = _sf_filters(forecast)
+    if filtered.empty:
+        st.warning("No transactions match the selected filters. Adjust the filters to continue.")
+        return
+
+    st.caption(f"Analysing {len(filtered):,} forecast records.")
+
+    # ---- KPI Cards ----
+    total_predicted = filtered["Predicted Revenue"].sum()
+    total_actual = filtered["Actual Revenue"].sum()
+    mape = float(np.mean(np.abs(
+        (filtered["Actual Revenue"] - filtered["Predicted Revenue"]) / filtered["Actual Revenue"]
+    )) * 100)
+    accuracy = 100 - mape
+    date_min = filtered["full_date"].min().strftime("%b %d, %Y")
+    date_max = filtered["full_date"].max().strftime("%b %d, %Y")
+    top_store = (
+        filtered.groupby("store_name")["Predicted Revenue"].sum()
+        .sort_values(ascending=False).index[0]
+    ) if not filtered.empty else "—"
+    top_product = (
+        filtered.groupby("product_name")["Predicted Revenue"].sum()
+        .sort_values(ascending=False).index[0]
+    ) if not filtered.empty else "—"
+
+    kpis = st.columns(5)
+    cards = [
+        ("Predicted Revenue", f"₹{total_predicted:,.0f}", "Total forecasted revenue", "#3A8F6E", "#EEF8F3"),
+        ("Actual Revenue", f"₹{total_actual:,.0f}", "Total actual revenue", "#2E6F6B", "#EDF5F4"),
+        ("Model Accuracy", f"{accuracy:.1f}%", f"MAPE: {mape:.1f}%", "#5BB58E", "#F0FAF4"),
+        ("Top Store", str(top_store), "By predicted revenue", "#8DA9C4", "#F0F5FA"),
+        ("Top Product", str(top_product), "By predicted revenue", "#B8A1C8", "#F6F1F8"),
+    ]
+    for col, card in zip(kpis, cards):
+        with col:
+            _sf_kpi(*card)
+
+    # ---- Charts Row 1: Trend + Monthly Summary ----
+    st.markdown("### Revenue Forecast Analysis")
+    chart_left, chart_right = st.columns(2)
+
+    with chart_left:
+        daily = filtered.sort_values("full_date").copy()
+        daily["Date"] = daily["full_date"].dt.strftime("%Y-%m-%d")
+        trend_long = daily.melt(
+            id_vars=["Date"],
+            value_vars=["Actual Revenue", "Predicted Revenue"],
+            var_name="Metric", value_name="Revenue",
+        )
+        fig = px.line(
+            trend_long, x="Date", y="Revenue", color="Metric", markers=True,
+            color_discrete_sequence=["#3A8F6E", "#8DA9C4"],
+            title="Actual vs Predicted Revenue Trend",
+        )
+        st.plotly_chart(_sf_chart_layout(fig), use_container_width=True)
+
+    with chart_right:
+        month_labels = {1: "Jan", 2: "Feb", 3: "Mar", 4: "Apr", 5: "May", 6: "Jun",
+                        7: "Jul", 8: "Aug", 9: "Sep", 10: "Oct", 11: "Nov", 12: "Dec"}
+        monthly = (
+            filtered.groupby("month", as_index=False)
+            .agg({"Actual Revenue": "sum", "Predicted Revenue": "sum"})
+            .sort_values("month")
+        )
+        monthly["Month"] = monthly["month"].map(month_labels)
+        monthly_long = monthly.melt(
+            id_vars=["Month", "month"],
+            value_vars=["Actual Revenue", "Predicted Revenue"],
+            var_name="Metric", value_name="Revenue",
+        ).sort_values("month")
+        fig = px.bar(
+            monthly_long, x="Month", y="Revenue", color="Metric", barmode="group",
+            color_discrete_sequence=["#3A8F6E", "#8DA9C4"],
+            title="Monthly Revenue: Actual vs Predicted",
+        )
+        st.plotly_chart(_sf_chart_layout(fig), use_container_width=True)
+
+    # ---- Charts Row 2: By Store + By Product ----
+    chart_left, chart_right = st.columns(2)
+
+    with chart_left:
+        store_rev = (
+            filtered.groupby("store_name", as_index=False)
+            .agg({"Predicted Revenue": "sum", "Actual Revenue": "sum"})
+            .sort_values("Predicted Revenue")
+        )
+        fig = px.bar(
+            store_rev, x="Predicted Revenue", y="store_name", orientation="h",
+            color_discrete_sequence=["#3A8F6E"],
+            title="Forecasted Revenue by Store",
+            labels={"Predicted Revenue": "Predicted Revenue (₹)", "store_name": ""},
+        )
+        st.plotly_chart(_sf_chart_layout(fig), use_container_width=True)
+
+    with chart_right:
+        product_rev = (
+            filtered.groupby("product_name", as_index=False)
+            .agg({"Predicted Revenue": "sum", "Actual Revenue": "sum"})
+            .sort_values("Predicted Revenue")
+            .tail(15)
+        )
+        fig = px.bar(
+            product_rev, x="Predicted Revenue", y="product_name", orientation="h",
+            color_discrete_sequence=["#5BB58E"],
+            title="Forecasted Revenue by Product (Top 15)",
+            labels={"Predicted Revenue": "Predicted Revenue (₹)", "product_name": ""},
+        )
+        st.plotly_chart(_sf_chart_layout(fig), use_container_width=True)
+
+    # ---- Forecast Accuracy Section ----
+    st.markdown("### Forecast Accuracy")
+    chart_left, chart_right = st.columns(2)
+
+    with chart_left:
+        max_val = max(filtered["Actual Revenue"].max(), filtered["Predicted Revenue"].max()) * 1.05
+        fig = px.scatter(
+            filtered,
+            x="Actual Revenue", y="Predicted Revenue",
+            color="store_name",
+            color_discrete_sequence=SALES_CHART_COLORS,
+            title="Actual vs Predicted (Calibration)",
+            labels={"Actual Revenue": "Actual Revenue (₹)", "Predicted Revenue": "Predicted Revenue (₹)"},
+            hover_data=["store_name", "product_name", "full_date"],
+        )
+        # 45° reference line
+        fig.add_shape(
+            type="line", x0=0, y0=0, x1=max_val, y1=max_val,
+            line=dict(color="gray", dash="dash", width=1),
+        )
+        st.plotly_chart(_sf_chart_layout(fig, height=400), use_container_width=True)
+        st.caption("Points on the dashed line = perfect prediction. Deviation = error.")
+
+    with chart_right:
+        filtered_copy = filtered.copy()
+        filtered_copy["Residual"] = filtered_copy["Actual Revenue"] - filtered_copy["Predicted Revenue"]
+        fig = px.histogram(
+            filtered_copy, x="Residual", nbins=30,
+            color_discrete_sequence=["#3A8F6E"],
+            title="Residual Distribution (Actual − Predicted)",
+            labels={"Residual": "Residual (₹)", "count": "Frequency"},
+        )
+        st.plotly_chart(_sf_chart_layout(fig, height=400), use_container_width=True)
+        st.caption("A tight cluster around zero indicates consistent predictions.")
+
+    # ---- Transaction Detail Table ----
+    st.markdown("### Forecast Detail")
+    search = st.text_input(
+        "Search forecasts",
+        placeholder="Search store, product, or date",
+        key="sf_search",
+    )
+    table = filtered.copy()
+    table["Error"] = table["Actual Revenue"] - table["Predicted Revenue"]
+    table["Error %"] = ((table["Error"].abs() / table["Actual Revenue"]) * 100).round(1)
+    table["Date"] = table["full_date"].dt.strftime("%Y-%m-%d")
+
+    if search:
+        search_cols = ["Date", "store_name", "product_name"]
+        contains = table[search_cols].astype(str).apply(
+            lambda col: col.str.contains(search, case=False, na=False)
+        )
+        table = table[contains.any(axis=1)]
+
+    table = table.sort_values("full_date", ascending=False)
+    display = table[[
+        "Date", "store_name", "product_name", "total_orders",
+        "Actual Revenue", "Predicted Revenue", "Error", "Error %",
+    ]].rename(columns={
+        "store_name": "Store",
+        "product_name": "Product",
+        "total_orders": "Orders",
+    })
+
+    row_limit = st.select_slider(
+        "Rows per page", options=[25, 50, 100, 250], value=50, key="sf_rows",
+    )
+    st.dataframe(
+        display.head(row_limit),
+        use_container_width=True,
+        hide_index=True,
+        column_config={
+            "Actual Revenue": st.column_config.NumberColumn("Actual Revenue", format="₹%.0f"),
+            "Predicted Revenue": st.column_config.NumberColumn("Predicted Revenue", format="₹%.0f"),
+            "Error": st.column_config.NumberColumn("Error", format="₹%.0f"),
+            "Error %": st.column_config.NumberColumn("Error %", format="%.1f%%"),
+        },
+    )
+    st.caption(f"Showing {min(len(display), row_limit):,} of {len(display):,} records.")
+
+    # ---- Business Insights ----
+    st.markdown("### Business Insights")
+    store_rev_total = filtered.groupby("store_name")["Predicted Revenue"].sum().sort_values(ascending=False)
+    product_rev_total = filtered.groupby("product_name")["Predicted Revenue"].sum().sort_values(ascending=False)
+    total_orders = filtered["total_orders"].sum()
+    avg_order = filtered["avg_order_value"].mean()
+
+    insights = [
+        f"**{store_rev_total.index[0]}** leads in predicted revenue with ₹{store_rev_total.iloc[0]:,.0f} across the forecast period.",
+        f"**{product_rev_total.index[0]}** is the top forecasted product, contributing ₹{product_rev_total.iloc[0]:,.0f} in predicted sales.",
+        f"The model achieves **{accuracy:.1f}% accuracy** (MAPE: {mape:.1f}%) across {len(filtered):,} forecast records.",
+        f"Total forecasted orders: **{total_orders:,.0f}** with an average order value of **₹{avg_order:,.0f}**.",
+        f"Forecast period: **{date_min}** to **{date_max}** ({len(filtered['month'].unique())} months).",
+    ]
+    for insight in insights:
+        st.markdown(f'<div class="sf-insight">{insight}</div>', unsafe_allow_html=True)
+
+
 # --- Dispatch on type ---
 model_type = cfg.get("type")
 if model_type == "risk_scoring":
@@ -489,5 +790,7 @@ elif model_type == "return_dashboard":
     render_return_dashboard(cfg)
 elif model_type == "discount_calculator":
     render_discount_calculator(cfg)
+elif model_type == "sales_forecast":
+    render_sales_forecast(cfg)
 else:
     st.info("This model doesn't have a render type configured yet.")

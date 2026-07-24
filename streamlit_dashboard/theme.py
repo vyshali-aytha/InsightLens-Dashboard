@@ -37,4 +37,5 @@ MODEL_TYPE_ACCENTS = {
     "risk_scoring": "#2E6F6B",        # teal — batch scoring service
     "return_dashboard": "#4A5FBA",    # indigo — KPI dashboard
     "discount_calculator": "#B5652E", # ochre — live what-if calculator
+    "sales_forecast": "#3A8F6E",      # emerald — time-series forecasting
 }
