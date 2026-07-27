@@ -111,4 +111,50 @@ MODELS = {
         },
         "status": "active",
     },
+
+    # type: pipeline_dashboard — Flask API shape (project/app.py): pipelines
+    # are NOT precomputed. POST .../run executes the DB-backed pipeline and
+    # caches the result server-side; GET endpoints below just read that
+    # cache (no DB hit, no recompute). No CSV fallback — this is the
+    # Dashboard -> HTTP -> Flask API -> Warehouse flow, so the Flask API is
+    # the only data source. csv_file/graph_file are downloaded/rendered
+    # straight from the API's own file-serving routes.
+    "underperforming": {
+        "label": "Underperforming Product & City Detection",
+        "icon": None,
+        "type": "pipeline_dashboard",
+        "api_base": "http://localhost:5000",
+        "endpoints": {
+            "run": "/api/underperforming/run",
+            "products": "/api/underperforming/products",
+            "cities": "/api/underperforming/cities",
+            "statistics": "/api/underperforming/statistics",
+            "csv_list": "/outputs/csv",
+            "csv_file": "/outputs/csv/{filename}",
+            "graph_list": "/outputs/graphs",
+            "graph_file": "/outputs/graphs/{name}",
+        },
+        # graphs this page renders, if present in the API's graph_list
+        "graphs": ["product_dashboard", "city_dashboard", "severity_distribution", "trend_zscore_distribution"],
+        "status": "active",
+    },
+
+    "stockout": {
+        "label": "Stockout & Reorder Prediction",
+        "icon": None,
+        "type": "pipeline_dashboard",
+        "api_base": "http://localhost:5000",
+        "endpoints": {
+            "run": "/api/stockout/run",
+            "predictions": "/api/stockout/predictions",
+            "classification": "/api/stockout/classification",
+            "metrics": "/api/stockout/metrics",
+            "csv_list": "/outputs/csv",
+            "csv_file": "/outputs/csv/{filename}",
+            "graph_list": "/outputs/graphs",
+            "graph_file": "/outputs/graphs/{name}",
+        },
+        "graphs": ["inventory_status_distribution", "feature_importance"],
+        "status": "active",
+    },
 }

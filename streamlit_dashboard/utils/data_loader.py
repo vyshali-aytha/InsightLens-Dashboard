@@ -228,3 +228,68 @@ def get_sales_historical_data(model_cfg: dict) -> pd.DataFrame | None:
                 return df
     return _csv_fallback(model_cfg["csv_dir"], model_cfg["csv_files"]["historical"])
 
+
+# ---------------------------------------------------------------------------
+# type: pipeline_dashboard (Flask API's project/app.py shape — POST /run,
+# then cached GET results/csv/graphs). No CSV fallback: the Flask API is
+# the only data source (Dashboard -> HTTP -> Flask API -> Warehouse).
+# ---------------------------------------------------------------------------
+PIPELINE_RUN_TIMEOUT = 300  # seconds — pipelines hit the DB and can train ML models
+
+
+def post_pipeline_run(model_cfg: dict) -> dict | None:
+    """POST the model's /run endpoint. Executes the pipeline — call only on
+    explicit user action, never automatically."""
+    api_base = model_cfg["api_base"]
+    endpoint = model_cfg["endpoints"]["run"]
+    if not api_base:
+        return None
+    try:
+        resp = requests.post(f"{api_base}{endpoint}", timeout=PIPELINE_RUN_TIMEOUT)
+        resp.raise_for_status()
+        return resp.json()
+    except requests.RequestException as exc:
+        return {"error": str(exc)}
+
+
+@st.cache_data(ttl=60, show_spinner=False)
+def get_pipeline_json(model_key: str, model_cfg: dict, endpoint_key: str):
+    """Cached GET against one of the model's declared endpoints. The Flask
+    API already serves these from its in-memory cache (populated by /run),
+    so this never triggers recomputation — it only avoids redundant HTTP
+    round-trips from Streamlit's own reruns."""
+    api_base = model_cfg["api_base"]
+    path = model_cfg["endpoints"].get(endpoint_key)
+    return _api_get(api_base, path)
+
+
+def pipeline_graph_url(model_cfg: dict, graph_name: str) -> str | None:
+    """Direct URL to a cached graph PNG on the Flask API — passed straight
+    to st.image so the browser fetches it, instead of Streamlit re-reading
+    and re-serving the bytes itself."""
+    api_base = model_cfg["api_base"]
+    if not api_base:
+        return None
+    return f"{api_base}{model_cfg['endpoints']['graph_file'].format(name=graph_name)}"
+
+
+@st.cache_data(ttl=300, show_spinner=False)
+def get_pipeline_csv_bytes(model_cfg: dict, filename: str) -> bytes | None:
+    """Fetches one generated CSV's bytes for a download button. Cached so
+    re-rendering the download-buttons tab doesn't re-fetch every file on
+    every rerun — cache clears naturally alongside get_pipeline_json when
+    a new pipeline run happens (both keyed off server state that only
+    changes via POST /run)."""
+    api_base = model_cfg["api_base"]
+    if not api_base:
+        return None
+    try:
+        resp = requests.get(
+            f"{api_base}{model_cfg['endpoints']['csv_file'].format(filename=filename)}",
+            timeout=REQUEST_TIMEOUT * 4,
+        )
+        resp.raise_for_status()
+        return resp.content
+    except requests.RequestException:
+        return None
+

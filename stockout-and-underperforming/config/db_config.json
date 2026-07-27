@@ -1,0 +1,31 @@
+{
+  "database": {
+    "host": "localhost",
+    "port": 5432,
+    "dbname": "bbi",
+    "user": "postgres",
+    "password": ""
+  },
+  "schema": "insightlens",
+  "paths": {
+    "landing": "data",
+    "validation_success": "validation_success",
+    "validation_failed": "validation_failed",
+    "br_success": "validation_success/br_success",
+    "br_failed": "validation_success/br_failed",
+    "br_processed": "validation_success/br_processed",
+    "load_archive": "loaded",
+    "load_failed": "load_failed"
+  },
+  "pipeline": {
+    "run_file_validation_first": true,
+    "skip_prompt_for_password": false
+  },
+  "required_headers": {
+    "SALES": ["transaction_id", "customer_id", "product_id", "store_id", "transaction_date_time", "quantity", "unit_price", "discount_amount", "gross_amount", "total_amount", "payment_mode"],
+    "INVENTORY": ["inventory_id", "product_id", "store_id", "date", "stock_capacity", "reorder_level", "available_stock", "inventory_status"],
+    "RETURNS": ["return_id", "transaction_id", "customer_id", "product_id", "return_date", "return_qty", "return_amount", "reason", "return_status"],
+    "PAYMENTS": ["payment_id", "transaction_id", "store_id", "customer_id", "payment_method", "payment_provider", "payment_status", "amount", "is_active"],
+    "CUSTOMER": ["customer_id", "customer_name", "city", "segment", "gender", "mobile", "email", "join_date"]
+  }
+}
