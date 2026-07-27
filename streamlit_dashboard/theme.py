@@ -39,4 +39,5 @@ MODEL_TYPE_ACCENTS = {
     "discount_calculator": "#B5652E", # ochre — live what-if calculator
     "sales_forecast": "#3A8F6E",      # emerald — time-series forecasting
     "pipeline_dashboard": "#6B4F8C",  # violet — on-demand DB pipeline (POST /run)
+    "demand_forecast": "#C9752E",     # amber — per-product/store quantity forecasting
 }

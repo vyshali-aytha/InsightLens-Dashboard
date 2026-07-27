@@ -112,6 +112,29 @@ MODELS = {
         "status": "active",
     },
 
+    # type: demand_forecast — per-product/per-store quantity forecasting
+    # (product_demand_forecasting's api.py shape, mirrors sales_forecast).
+    # Exposes /health, /forecast, /forecast/summary. CSV fallback uses the
+    # model's own future_demand_forecast.csv (already scored with
+    # predicted_quantity) + model_metrics.csv.
+    "product_demand": {
+        "label": "Product Demand Forecasting",
+        "icon": None,
+        "type": "demand_forecast",
+        "api_base": "http://localhost:8012",
+        "csv_dir": "data/product_demand",
+        "endpoints": {
+            "health": "/health",
+            "forecast": "/forecast",
+            "summary": "/forecast/summary",
+        },
+        "csv_files": {
+            "forecast": "future_demand_forecast.csv",
+            "metrics": "model_metrics.csv",
+        },
+        "status": "active",
+    },
+
     # type: pipeline_dashboard — Flask API shape (project/app.py): pipelines
     # are NOT precomputed. POST .../run executes the DB-backed pipeline and
     # caches the result server-side; GET endpoints below just read that

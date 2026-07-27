@@ -9,6 +9,7 @@ from utils.data_loader import (
     get_return_dashboard, get_return_breakdown, get_return_predictions,
     get_discount_products, post_discount_prediction,
     get_sales_forecast_data, get_sales_historical_data,
+    get_demand_forecast_data, get_demand_model_metrics,
     post_pipeline_run, get_pipeline_json, pipeline_graph_url, get_pipeline_csv_bytes,
 )
 
@@ -784,6 +785,256 @@ def render_sales_forecast(cfg):
 
 
 # =============================================================================
+# type: demand_forecast — Product Demand Forecasting dashboard
+# (product_demand_forecasting's api.py shape — /health, /forecast,
+# /forecast/summary. Quantity per product/store, not revenue.)
+# =============================================================================
+
+DF_KPI_CSS = """
+<style>
+.df-kpi {
+    min-height: 122px; padding: 16px 18px; border: 1px solid var(--accent);
+    border-left: 5px solid var(--accent); border-radius: 14px;
+    background: var(--tint); box-shadow: 0 5px 16px rgba(20, 31, 48, .05);
+    transition: transform .16s ease, box-shadow .16s ease;
+}
+.df-kpi:hover { transform: translateY(-2px); box-shadow: 0 9px 22px rgba(20, 31, 48, .09); }
+.df-kpi__label { color: #52606D; font-size: .76rem; font-weight: 700; letter-spacing: .045em; text-transform: uppercase; }
+.df-kpi__value { color: #1B2430; font-size: 1.6rem; font-weight: 750; line-height: 1.35; overflow-wrap: anywhere; }
+.df-kpi__sub { color: #6B7280; font-size: .82rem; }
+.df-insight { padding: 14px 16px; background: #FFFFFF; border: 1px solid #E2E5EA; border-radius: 10px; margin-bottom: 10px; color: #394150; }
+</style>
+"""
+
+DEMAND_CHART_COLORS = ["#C9752E", "#E0A868", "#8A5626", "#8DA9C4", "#B8A1C8", "#9BC5B0"]
+
+
+def _df_kpi(label, value, subtitle, accent, tint):
+    st.markdown(
+        f'<div class="df-kpi" style="--accent:{accent};--tint:{tint};">'
+        f'<div class="df-kpi__label">{label}</div>'
+        f'<div class="df-kpi__value">{value}</div>'
+        f'<div class="df-kpi__sub">{subtitle}</div></div>',
+        unsafe_allow_html=True,
+    )
+
+
+def _df_chart_layout(fig, height=380):
+    fig.update_layout(
+        height=height, margin=dict(l=10, r=10, t=48, b=10), paper_bgcolor="white",
+        plot_bgcolor="white", font=dict(color="#1B2430"), legend_title_text="",
+    )
+    fig.update_xaxes(showgrid=True, gridcolor="#EDF0F3", zeroline=False)
+    fig.update_yaxes(showgrid=False, zeroline=False)
+    return fig
+
+
+def _df_filters(df):
+    """Store/product/category filters for the demand forecast data."""
+    filtered = df.copy()
+    with st.expander("Filters", expanded=False):
+        st.caption("Refine the forecast output. All dashboard elements update automatically.")
+        row = st.columns(3)
+        with row[0]:
+            stores = sorted(filtered["store_name"].dropna().astype(str).unique())
+            sel_stores = st.multiselect("Store", stores, key="df_store")
+            if sel_stores:
+                filtered = filtered[filtered["store_name"].astype(str).isin(sel_stores)]
+        with row[1]:
+            products = sorted(filtered["product_name"].dropna().astype(str).unique())
+            sel_products = st.multiselect("Product", products, key="df_product")
+            if sel_products:
+                filtered = filtered[filtered["product_name"].astype(str).isin(sel_products)]
+        with row[2]:
+            if "category" in filtered.columns:
+                categories = sorted(filtered["category"].dropna().astype(str).unique())
+                sel_categories = st.multiselect("Category", categories, key="df_category")
+                if sel_categories:
+                    filtered = filtered[filtered["category"].astype(str).isin(sel_categories)]
+    return filtered
+
+
+def render_product_demand_forecast(cfg):
+    forecast = get_demand_forecast_data(cfg)
+    if forecast is None or forecast.empty:
+        st.warning("No forecast data available — check the API is running or place future_demand_forecast.csv in the model's data folder.")
+        return
+
+    st.markdown(DF_KPI_CSS, unsafe_allow_html=True)
+
+    forecast = forecast.copy()
+    if "full_date" in forecast.columns:
+        forecast["full_date"] = pd.to_datetime(forecast["full_date"])
+    for col in ["quantity", "predicted_quantity", "unit_price", "discount"]:
+        if col in forecast.columns:
+            forecast[col] = pd.to_numeric(forecast[col], errors="coerce")
+
+    filtered = _df_filters(forecast)
+    if filtered.empty:
+        st.warning("No records match the selected filters. Adjust the filters to continue.")
+        return
+
+    st.caption(f"Analysing {len(filtered):,} demand forecast records.")
+
+    # ---- KPI Cards ----
+    total_actual_qty = filtered["quantity"].sum()
+    total_predicted_qty = filtered["predicted_quantity"].sum()
+    nonzero = filtered[filtered["quantity"] != 0]
+    wmape = (
+        (nonzero["quantity"] - nonzero["predicted_quantity"]).abs().sum()
+        / nonzero["quantity"].abs().sum() * 100
+    ) if not nonzero.empty else float("nan")
+    top_product = (
+        filtered.groupby("product_name")["predicted_quantity"].sum()
+        .sort_values(ascending=False).index[0]
+    ) if not filtered.empty else "—"
+    top_store = (
+        filtered.groupby("store_name")["predicted_quantity"].sum()
+        .sort_values(ascending=False).index[0]
+    ) if not filtered.empty else "—"
+
+    kpis = st.columns(5)
+    cards = [
+        ("Actual Demand", f"{total_actual_qty:,.0f} units", "Total actual quantity", "#C9752E", "#FCF3EA"),
+        ("Forecasted Demand", f"{total_predicted_qty:,.0f} units", "Total predicted quantity", "#8A5626", "#F7EDE3"),
+        ("Forecast Error", f"{wmape:.1f}% WMAPE", "Weighted mean abs. % error", "#E0A868", "#FDF5EA"),
+        ("Top Product", str(top_product), "By predicted demand", "#8DA9C4", "#F0F5FA"),
+        ("Top Store", str(top_store), "By predicted demand", "#B8A1C8", "#F6F1F8"),
+    ]
+    for col, card in zip(kpis, cards):
+        with col:
+            _df_kpi(*card)
+
+    # ---- Charts Row 1: Trend + By Category ----
+    st.markdown("### Demand Forecast Analysis")
+    chart_left, chart_right = st.columns(2)
+
+    with chart_left:
+        daily = filtered.groupby(filtered["full_date"].dt.date, as_index=False).agg(
+            {"quantity": "sum", "predicted_quantity": "sum"}
+        ).rename(columns={"full_date": "Date"})
+        daily.columns = ["Date", "Actual Quantity", "Predicted Quantity"]
+        trend_long = daily.melt("Date", ["Actual Quantity", "Predicted Quantity"], "Metric", "Quantity")
+        fig = px.line(trend_long, x="Date", y="Quantity", color="Metric", markers=False,
+                      color_discrete_sequence=["#C9752E", "#8DA9C4"], title="Actual vs Predicted Demand Trend")
+        st.plotly_chart(_df_chart_layout(fig), use_container_width=True)
+
+    with chart_right:
+        if "category" in filtered.columns:
+            cat = filtered.groupby("category", as_index=False).agg(
+                {"quantity": "sum", "predicted_quantity": "sum"}
+            ).sort_values("predicted_quantity").tail(10)
+            fig = px.bar(cat, x="predicted_quantity", y="category", orientation="h",
+                         color_discrete_sequence=["#C9752E"], title="Forecasted Demand by Category",
+                         labels={"predicted_quantity": "Predicted Quantity", "category": ""})
+            st.plotly_chart(_df_chart_layout(fig), use_container_width=True)
+        else:
+            st.info("No category column available in this data.")
+
+    # ---- Charts Row 2: By Store + By Product ----
+    chart_left, chart_right = st.columns(2)
+
+    with chart_left:
+        store_qty = (
+            filtered.groupby("store_name", as_index=False)
+            .agg({"predicted_quantity": "sum", "quantity": "sum"})
+            .sort_values("predicted_quantity").tail(15)
+        )
+        fig = px.bar(store_qty, x="predicted_quantity", y="store_name", orientation="h",
+                     color_discrete_sequence=["#8A5626"], title="Forecasted Demand by Store",
+                     labels={"predicted_quantity": "Predicted Quantity", "store_name": ""})
+        st.plotly_chart(_df_chart_layout(fig), use_container_width=True)
+
+    with chart_right:
+        product_qty = (
+            filtered.groupby("product_name", as_index=False)
+            .agg({"predicted_quantity": "sum", "quantity": "sum"})
+            .sort_values("predicted_quantity").tail(15)
+        )
+        fig = px.bar(product_qty, x="predicted_quantity", y="product_name", orientation="h",
+                     color_discrete_sequence=["#E0A868"], title="Forecasted Demand by Product (Top 15)",
+                     labels={"predicted_quantity": "Predicted Quantity", "product_name": ""})
+        st.plotly_chart(_df_chart_layout(fig), use_container_width=True)
+
+    # ---- Forecast Accuracy ----
+    st.markdown("### Forecast Accuracy")
+    chart_left, chart_right = st.columns(2)
+
+    with chart_left:
+        max_val = max(filtered["quantity"].max(), filtered["predicted_quantity"].max()) * 1.05
+        fig = px.scatter(
+            filtered.sample(min(len(filtered), 3000), random_state=42),
+            x="quantity", y="predicted_quantity", color="store_name",
+            color_discrete_sequence=DEMAND_CHART_COLORS,
+            title="Actual vs Predicted (Calibration)",
+            labels={"quantity": "Actual Quantity", "predicted_quantity": "Predicted Quantity"},
+            hover_data=["product_name", "store_name"],
+        )
+        fig.add_shape(type="line", x0=0, y0=0, x1=max_val, y1=max_val,
+                     line=dict(color="gray", dash="dash", width=1))
+        st.plotly_chart(_df_chart_layout(fig, height=400), use_container_width=True)
+        st.caption("Points on the dashed line = perfect prediction. Deviation = error. Sampled for readability.")
+
+    with chart_right:
+        residuals = filtered.copy()
+        residuals["Residual"] = residuals["quantity"] - residuals["predicted_quantity"]
+        fig = px.histogram(residuals, x="Residual", nbins=30, color_discrete_sequence=["#C9752E"],
+                           title="Residual Distribution (Actual − Predicted)",
+                           labels={"Residual": "Residual (units)", "count": "Frequency"})
+        st.plotly_chart(_df_chart_layout(fig, height=400), use_container_width=True)
+        st.caption("A tight cluster around zero indicates consistent predictions.")
+
+    # ---- Model Comparison ----
+    metrics_df = get_demand_model_metrics(cfg)
+    if metrics_df is not None and not metrics_df.empty:
+        st.markdown("### Model Comparison")
+        st.dataframe(metrics_df, use_container_width=True, hide_index=True)
+        st.caption("WMAPE (weighted mean absolute % error) selects the model used for the live forecast — lower is better.")
+
+    # ---- Detail Table ----
+    st.markdown("### Forecast Detail")
+    search = st.text_input("Search forecasts", placeholder="Search store, product, or category", key="df_search")
+    table = filtered.copy()
+    table["Error"] = table["quantity"] - table["predicted_quantity"]
+    table["Date"] = table["full_date"].dt.strftime("%Y-%m-%d")
+
+    if search:
+        search_cols = [c for c in ["Date", "store_name", "product_name", "category"] if c in table.columns]
+        contains = table[search_cols].astype(str).apply(lambda col: col.str.contains(search, case=False, na=False))
+        table = table[contains.any(axis=1)]
+
+    table = table.sort_values("full_date", ascending=False)
+    display_cols = ["Date", "store_name", "product_name", "category", "quantity", "predicted_quantity", "Error"]
+    display_cols = [c for c in display_cols if c in table.columns]
+    display = table[display_cols].rename(columns={
+        "store_name": "Store", "product_name": "Product", "category": "Category",
+        "quantity": "Actual Qty", "predicted_quantity": "Predicted Qty",
+    })
+    row_limit = st.select_slider("Rows per page", options=[25, 50, 100, 250], value=50, key="df_rows")
+    st.dataframe(
+        display.head(row_limit), use_container_width=True, hide_index=True,
+        column_config={
+            "Predicted Qty": st.column_config.NumberColumn("Predicted Qty", format="%.1f"),
+            "Error": st.column_config.NumberColumn("Error", format="%.1f"),
+        },
+    )
+    st.caption(f"Showing {min(len(display), row_limit):,} of {len(display):,} records.")
+
+    # ---- Business Insights ----
+    st.markdown("### Business Insights")
+    product_total = filtered.groupby("product_name")["predicted_quantity"].sum().sort_values(ascending=False)
+    store_total = filtered.groupby("store_name")["predicted_quantity"].sum().sort_values(ascending=False)
+    insights = [
+        f"**{product_total.index[0]}** has the highest forecasted demand at {product_total.iloc[0]:,.0f} units.",
+        f"**{store_total.index[0]}** is expected to see the most demand, at {store_total.iloc[0]:,.0f} predicted units.",
+        f"The model achieves a **{wmape:.1f}% WMAPE** across {len(filtered):,} forecast records.",
+        f"Total forecasted demand: **{total_predicted_qty:,.0f} units** vs **{total_actual_qty:,.0f} units** actual.",
+    ]
+    for insight in insights:
+        st.markdown(f'<div class="df-insight">{insight}</div>', unsafe_allow_html=True)
+
+
+# =============================================================================
 # type: pipeline_dashboard — Flask API shape (project/app.py):
 # POST /run executes the DB-backed pipeline; GET endpoints read the
 # server-side cache. No CSV fallback — the Flask API is the only source.
@@ -859,6 +1110,8 @@ elif model_type == "discount_calculator":
     render_discount_calculator(cfg)
 elif model_type == "sales_forecast":
     render_sales_forecast(cfg)
+elif model_type == "demand_forecast":
+    render_product_demand_forecast(cfg)
 elif model_type == "pipeline_dashboard":
     render_pipeline_dashboard(model_key, cfg)
 else:

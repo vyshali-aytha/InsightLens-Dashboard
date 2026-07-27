@@ -230,6 +230,33 @@ def get_sales_historical_data(model_cfg: dict) -> pd.DataFrame | None:
 
 
 # ---------------------------------------------------------------------------
+# type: demand_forecast (Product Demand Forecasting)
+# ---------------------------------------------------------------------------
+
+@st.cache_data(ttl=60, show_spinner=False)
+def get_demand_forecast_data(model_cfg: dict) -> pd.DataFrame | None:
+    """Per-transaction quantity forecast — actual vs predicted, per
+    product/store. Tries the live API first (/forecast), falls back to
+    future_demand_forecast.csv."""
+    api_base = model_cfg.get("api_base")
+    endpoint = model_cfg.get("endpoints", {}).get("forecast")
+    if api_base and endpoint:
+        result = _api_get(api_base, endpoint)
+        if result is not None:
+            df = pd.DataFrame(result)
+            if not df.empty:
+                return df
+    return _csv_fallback(model_cfg["csv_dir"], model_cfg["csv_files"]["forecast"])
+
+
+@st.cache_data(ttl=300, show_spinner=False)
+def get_demand_model_metrics(model_cfg: dict) -> pd.DataFrame | None:
+    """Model comparison table (MAE/RMSE/WMAPE per candidate model) from
+    model_metrics.csv — same for API-backed or CSV-fallback mode."""
+    return _csv_fallback(model_cfg["csv_dir"], model_cfg["csv_files"]["metrics"])
+
+
+# ---------------------------------------------------------------------------
 # type: pipeline_dashboard (Flask API's project/app.py shape — POST /run,
 # then cached GET results/csv/graphs). No CSV fallback: the Flask API is
 # the only data source (Dashboard -> HTTP -> Flask API -> Warehouse).
@@ -248,6 +275,17 @@ def post_pipeline_run(model_cfg: dict) -> dict | None:
         resp = requests.post(f"{api_base}{endpoint}", timeout=PIPELINE_RUN_TIMEOUT)
         resp.raise_for_status()
         return resp.json()
+    except requests.HTTPError as exc:
+        # app.py's error routes return {"error": "..."} in the body even on
+        # a 500 — raise_for_status() already fired, so read the body
+        # ourselves instead of losing it behind a generic "500 Server
+        # Error" string.
+        detail = None
+        try:
+            detail = exc.response.json().get("error")
+        except (ValueError, AttributeError):
+            pass
+        return {"error": detail or str(exc)}
     except requests.RequestException as exc:
         return {"error": str(exc)}
 
