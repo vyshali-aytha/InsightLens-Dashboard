@@ -1,7 +1,6 @@
 import streamlit as st
 from config import MODELS
-from utils.data_loader import get_health
-from theme import PALETTE, STATUS_COLORS, MODEL_TYPE_ACCENTS
+from theme import PALETTE, MODEL_TYPE_ACCENTS
 
 st.set_page_config(page_title="InsightLens", layout="wide")
 
@@ -79,23 +78,7 @@ def home():
                 st.markdown(f'<div class="model-accent" style="background:{accent};"></div>', unsafe_allow_html=True)
                 st.markdown(f"### {cfg['label']}")
 
-                if cfg.get("type") == "risk_scoring":
-                    health = get_health(model_key, cfg["api_base"])
-                    status = health.get("status", "unknown")
-                    colors = STATUS_COLORS.get(status, STATUS_COLORS["unknown"])
-                    st.markdown(
-                        f'<span class="status-pill" style="background:{colors["bg"]};color:{colors["fg"]};">{status}</span>',
-                        unsafe_allow_html=True,
-                    )
-                    if health.get("rows_scored") is not None:
-                        st.metric("Rows scored", health["rows_scored"])
-                    if health.get("last_scored_at"):
-                        st.caption(f"Last refreshed: {health['last_scored_at']}")
-                else:
-                    # return_dashboard and discount_calculator have no /health
-                    # endpoint — just point to the Model Dashboard page
-                    # instead of guessing at a status.
-                    st.caption("See Model Dashboard for details →")
+                st.caption("See Model Dashboard for details →")
 
     st.divider()
     st.info("Open **Model Dashboard** in the sidebar to explore a specific model's scores and charts.")
